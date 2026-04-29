@@ -1,4 +1,3 @@
-// src/contracts/entities/contract.entity.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -13,6 +12,7 @@ import { Order } from '../orders/orders.entity';
 export enum ContractStatus {
   PENDING = 'PENDING',
   OTP_SENT = 'OTP_SENT',
+  VERIFIED = 'VERIFIED',
   SIGNED = 'SIGNED',
   LOCKED = 'LOCKED',
 }
@@ -22,7 +22,7 @@ export class Contract {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @ManyToOne(() => User, (user) => user.contracts)
+  @ManyToOne(() => User, (user) => user.contracts, { nullable: true })
   @JoinColumn({ name: 'user_id' })
   user!: User;
 
@@ -33,6 +33,9 @@ export class Contract {
   @Column({ name: 'contract_code', unique: true, length: 50 })
   contractCode!: string;
 
+  @Column({ type: 'text' })
+  content!: string;
+
   @Column({
     type: 'enum',
     enum: ContractStatus,
@@ -42,6 +45,9 @@ export class Contract {
 
   @Column({ name: 'signed_at', type: 'timestamp', nullable: true })
   signedAt!: Date;
+
+  @Column({ name: 'failed_verify_attempts', default: 0 })
+  failedVerifyAttempts!: number;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
