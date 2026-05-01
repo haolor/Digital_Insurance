@@ -1,4 +1,3 @@
-// src/leads/entities/lead.entity.ts
 import {
   Entity,
   PrimaryGeneratedColumn,

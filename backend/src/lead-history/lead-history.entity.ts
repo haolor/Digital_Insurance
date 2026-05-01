@@ -1,4 +1,3 @@
-// src/leads/entities/lead-history.entity.ts
 import {
   Entity,
   PrimaryGeneratedColumn,

@@ -9,6 +9,7 @@ import { ContractsModule } from './contracts/contracts.module';
 import { LeadsModule } from './leads/leads.module';
 import { LeadHistoryModule } from './lead-history/lead-history.module';
 import { ConfigModule } from '@nestjs/config';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ConfigModule } from '@nestjs/config';
     ContractsModule,
     LeadsModule,
     LeadHistoryModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
