@@ -4,10 +4,10 @@ import { LeadHistoryController } from './lead-history.controller';
 import { LeadHistoryService } from './lead-history.service';
 import { LeadHistory } from './lead-history.entity';
 
-
 @Module({
   imports: [TypeOrmModule.forFeature([LeadHistory])],
   controllers: [LeadHistoryController],
-  providers: [LeadHistoryService]
+  providers: [LeadHistoryService],
+  exports: [LeadHistoryService],
 })
 export class LeadHistoryModule {}

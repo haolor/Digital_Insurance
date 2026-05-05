@@ -15,7 +15,7 @@ export class ContractsController {
 
 	@Post('create')
 	create(@Body() createDto: CreateContractDto) {
-		return this.contractsService.createFromTemplate(createDto);
+		return this.contractsService.createFromOrder(createDto);
 	}
 
 	@Post(':id/send-otp')

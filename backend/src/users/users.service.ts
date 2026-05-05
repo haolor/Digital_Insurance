@@ -61,7 +61,13 @@ export class UsersService {
   async findAll() {
     return this.usersRepository.find();
   }
-  
-  
 
+  async findSalesStaff() {
+    return this.usersRepository.find({ 
+      where: [
+        { role: 'ADMIN' as any },
+        { role: 'SALE' as any }
+      ] 
+    });
+  }
 }

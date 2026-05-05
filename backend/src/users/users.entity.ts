@@ -12,6 +12,7 @@ import { Lead } from '../leads/leads.entity';
 export enum UserRole {
   ADMIN = 'ADMIN',
   CUSTOMER = 'CUSTOMER',
+  SALE = 'SALE', 
 }
 
 @Entity('users')

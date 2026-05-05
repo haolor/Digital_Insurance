@@ -28,6 +28,9 @@ export class Lead {
   @Column({ length: 20 })
   phone!: string;
 
+  @Column({ length: 150, nullable: true })
+  email!: string;
+
   @Column({ length: 50, nullable: true })
   source!: string;
 

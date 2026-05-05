@@ -7,23 +7,20 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeepPartial, Repository } from 'typeorm';
 import { CallbackDto, CreateContractDto, VerifyOtpDto } from './contracts.dto';
 import { Contract, ContractStatus } from './contracts.entity';
+import { CacheService } from '../cache/cache.service';
+import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class ContractsService {
-	private readonly otpTtlMs = 120_000;
-	private readonly maxResend = 3;
-	private readonly maxWrongAttempts = 5;
-	private readonly otpStore = new Map<
-		number,
-		{ code: string; resendCount: number; expiresAt: number }
-	>();
+	private readonly logger = new Logger(ContractsService.name);
 
 	constructor(
 		@InjectRepository(Contract)
 		private readonly contractsRepository: Repository<Contract>,
+		private readonly cacheService: CacheService,
 	) {}
 
-	async createFromTemplate(createDto: CreateContractDto): Promise<Contract> {
+	async createFromOrder(createDto: CreateContractDto): Promise<Contract> {
 		const content = createDto.template.replaceAll('{{name}}', createDto.name);
 		const contractCode =
 			createDto.contractCode ?? `CT-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -56,21 +53,16 @@ export class ContractsService {
 			throw new BadRequestException('Contract is locked');
 		}
 
-		const now = Date.now();
-		const existing = this.otpStore.get(contractId);
-		const isExistingValid = existing && existing.expiresAt > now;
-		const resendCount = isExistingValid ? existing.resendCount + 1 : 1;
+		const otpKey = `otp:${contractId}`;
+		const existing = this.cacheService.get<{ code: string; resendCount: number }>(otpKey);
+		const resendCount = existing ? existing.resendCount + 1 : 1;
 
-		if (resendCount > this.maxResend) {
+		if (resendCount > 3) {
 			throw new BadRequestException('Maximum OTP resend reached');
 		}
 
 		const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-		this.otpStore.set(contractId, {
-			code: otpCode,
-			resendCount,
-			expiresAt: now + this.otpTtlMs,
-		});
+		this.cacheService.set(otpKey, { code: otpCode, resendCount }, 120);
 
 		contract.status = ContractStatus.OTP_SENT;
 		await this.contractsRepository.save(contract);
@@ -78,7 +70,7 @@ export class ContractsService {
 		return {
 			contractId,
 			status: contract.status,
-			ttlSeconds: Math.floor(this.otpTtlMs / 1000),
+			ttlSeconds: 120,
 			resendCount,
 			otpCode,
 		};
@@ -93,15 +85,14 @@ export class ContractsService {
 			throw new BadRequestException('Contract is locked');
 		}
 
-		const now = Date.now();
-		const otpData = this.otpStore.get(contractId);
-		if (!otpData || otpData.expiresAt <= now) {
-			this.otpStore.delete(contractId);
+		const otpKey = `otp:${contractId}`;
+		const otpData = this.cacheService.get<{ code: string }>(otpKey);
+		if (!otpData) {
 			throw new BadRequestException('OTP expired or not found');
 		}
 
 		if (otpData.code === verifyDto.otp) {
-			this.otpStore.delete(contractId);
+			this.cacheService.delete(otpKey);
 			contract.status = ContractStatus.VERIFIED;
 			contract.failedVerifyAttempts = 0;
 			await this.contractsRepository.save(contract);
@@ -110,9 +101,9 @@ export class ContractsService {
 		}
 
 		contract.failedVerifyAttempts += 1;
-		if (contract.failedVerifyAttempts > this.maxWrongAttempts) {
+		if (contract.failedVerifyAttempts > 5) {
 			contract.status = ContractStatus.LOCKED;
-			this.otpStore.delete(contractId);
+			this.cacheService.delete(otpKey);
 		}
 		await this.contractsRepository.save(contract);
 
@@ -120,7 +111,7 @@ export class ContractsService {
 			contractId,
 			status: contract.status,
 			failedAttempts: contract.failedVerifyAttempts,
-			maxWrongAttempts: this.maxWrongAttempts,
+			maxWrongAttempts: 5,
 		};
 	}
 
@@ -135,6 +126,9 @@ export class ContractsService {
 		contract.status = callbackDto.status ?? ContractStatus.SIGNED;
 		contract.signedAt = new Date();
 		await this.contractsRepository.save(contract);
+
+		this.logger.log(`[EFY Callback] Contract #${contract.id} signed successfully via EFY`);
+		console.log(`[EFY Callback] Contract #${contract.id} signed successfully via EFY`);
 
 		return contract;
 	}

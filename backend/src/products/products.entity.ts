@@ -27,6 +27,9 @@ export class Product {
   @Column({ default: true })
   active!: boolean;
 
+  @Column({ type: 'text', nullable: true })
+  description?: string;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 

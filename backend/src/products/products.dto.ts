@@ -20,5 +20,9 @@ export class ProductDto {
   @IsOptional()
   @IsBoolean()
   active?: boolean;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
 }
 

@@ -22,7 +22,7 @@ export class PaymentsService {
       );
 
       // 2. Trigger create contract
-      await this.contractsService.createFromTemplate({
+      await this.contractsService.createFromOrder({
         name: `Contract for Order #${order.id}`,
         template: 'Dear {{name}}, your contract for product {{product}} is ready.',
         userId: order.user.id.toString(),

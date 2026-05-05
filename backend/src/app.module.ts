@@ -10,9 +10,12 @@ import { LeadsModule } from './leads/leads.module';
 import { LeadHistoryModule } from './lead-history/lead-history.module';
 import { ConfigModule } from '@nestjs/config';
 import { PaymentsModule } from './payments/payments.module';
+import { CacheModule } from './cache/cache.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -33,6 +36,7 @@ import { PaymentsModule } from './payments/payments.module';
     LeadsModule,
     LeadHistoryModule,
     PaymentsModule,
+    CacheModule,
   ],
   controllers: [AppController],
   providers: [AppService],
