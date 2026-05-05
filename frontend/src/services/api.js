@@ -5,7 +5,7 @@ const api = axios.create({
 });
 
 export const userService = {
-  login: (email, password) => api.get('/users').then(res => res.data.find(u => u.email === email)), // Mock login
+  login: (email, password) => api.post('/users/login', { email, password }).then(res => res.data),
   getUsers: () => api.get('/users').then(res => res.data),
   createUser: (data) => api.post('/users', data).then(res => res.data),
 };
@@ -28,6 +28,7 @@ export const leadService = {
   createLead: (data) => api.post('/leads', data).then(res => res.data),
   updateLead: (id, data) => api.patch(`/leads/${id}`, data).then(res => res.data),
   getHistory: (id) => api.get(`/lead-history/${id}`).then(res => res.data),
+  convertLead: (id) => api.post(`/leads/${id}/convert`).then(res => res.data),
 };
 
 export const contractService = {

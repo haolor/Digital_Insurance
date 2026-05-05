@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { OrderDto } from './orders.dto';
@@ -26,5 +27,15 @@ export class OrdersController {
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.ordersService.findOne(id);
+  }
+
+  @Get('user/:userId')
+  findByUser(@Param('userId') userId: string) {
+    return this.ordersService.findByUser(userId);
+  }
+
+  @Patch(':id/cancel')
+  cancel(@Param('id', ParseIntPipe) id: number) {
+    return this.ordersService.cancel(id);
   }
 }

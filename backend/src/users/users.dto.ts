@@ -15,3 +15,11 @@ export class UserDto {
     @IsEnum(UserRole)
     role?: UserRole;
 }
+
+export class LoginDto {
+    @IsEmail()
+    email!: string;
+
+    @IsNotEmpty()
+    password!: string;
+}

@@ -20,12 +20,22 @@ export class LeadsService {
   ) {}
 
   async create(createLeadDto: CreateLeadDto): Promise<Lead> {
+    const { assignedToId, ...rest } = createLeadDto;
     const lead = this.leadsRepository.create({
-      ...createLeadDto,
+      ...rest,
       status: LeadStatus.NEW,
     });
+
+    if (assignedToId) {
+      lead.assignedTo = { id: assignedToId } as any;
+    }
+
     const savedLead = await this.leadsRepository.save(lead);
-    await this.historyService.log(savedLead, 'Lead created');
+    
+    let action = 'Lead created';
+    if (assignedToId) action = `Lead created and assigned to user ${assignedToId}`;
+    
+    await this.historyService.log(savedLead, action);
     return savedLead;
   }
 
@@ -83,10 +93,11 @@ export class LeadsService {
     if (!lead.email) {
       throw new Error('Lead must have an email to be converted to user');
     }
+    const defaultPassword = 'InitialPassword123!';
     const user = await this.usersService.createUser({
       name: lead.name,
       email: lead.email,
-      password: 'InitialPassword123!', 
+      password: defaultPassword, 
       role: 'CUSTOMER' as any,
     });
     lead.status = LeadStatus.WON;
@@ -95,7 +106,7 @@ export class LeadsService {
     this.logger.log(`[Email Service] Welcome email sent to ${user.email} with temporary credentials.`);
     console.log(`[Email Service] Welcome email sent to ${user.email} with temporary credentials.`);
 
-    return { user, lead };
+    return { user, lead, defaultPassword };
   }
 
   @Cron(CronExpression.EVERY_MINUTE)

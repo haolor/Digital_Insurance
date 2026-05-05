@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrderDto } from './orders.dto';
@@ -46,6 +46,31 @@ export class OrdersService {
   async updateStatus(id: number, status: OrderStatus): Promise<Order> {
     const order = await this.findOne(id);
     order.status = status;
+    return this.ordersRepository.save(order);
+  }
+
+  async findByUser(userId: string): Promise<Order[]> {
+    return this.ordersRepository.find({
+      where: { user: { id: userId } },
+      relations: ['product'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async cancel(id: number): Promise<Order> {
+    const order = await this.findOne(id);
+
+    if (order.status === OrderStatus.CANCELED) {
+      throw new BadRequestException('Order is already canceled.');
+    }
+
+    if (order.status === OrderStatus.PAID) {
+      throw new BadRequestException(
+        'Cannot cancel a paid order. Please request a refund instead.',
+      );
+    }
+
+    order.status = OrderStatus.CANCELED;
     return this.ordersRepository.save(order);
   }
 }

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Shield, Mail, Lock, Loader2, ArrowRight, Globe, Send } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate, Link } from 'react-router-dom';
 import { userService } from '../services/api';
 
 const Login = ({ onLogin }) => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -135,7 +137,7 @@ const Login = ({ onLogin }) => {
 
           <div className="mt-10 text-center">
             <p className="text-xs text-slate-400">
-              New here? <span className="text-indigo-600 font-bold cursor-pointer hover:underline">Create an account</span>
+              New here? <Link to="/register" className="text-indigo-600 font-bold hover:underline">Create an account</Link>
             </p>
           </div>
         </div>

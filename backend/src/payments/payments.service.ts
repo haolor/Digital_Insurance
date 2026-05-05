@@ -23,9 +23,9 @@ export class PaymentsService {
 
       // 2. Trigger create contract
       await this.contractsService.createFromOrder({
-        name: `Contract for Order #${order.id}`,
-        template: 'Dear {{name}}, your contract for product {{product}} is ready.',
-        userId: order.user.id.toString(),
+        name: order.user.name,
+        template: `CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM\nĐộc lập - Tự do - Hạnh phúc\n\nHỢP ĐỒNG BẢO HIỂM SỐ\n\nKính chào ông/bà {{name}},\nChúc mừng ông/bà đã tham gia bảo hiểm cho sản phẩm: ${order.product.name}.\nSố tiền bảo hiểm: ${order.amount} USD.\nTrạng thái: Đã thanh toán thành công.`,
+        userId: order.user.id,
         orderId: order.id,
       });
 

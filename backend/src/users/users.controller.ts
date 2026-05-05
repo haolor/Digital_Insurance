@@ -10,7 +10,8 @@ import {
 } from '@nestjs/common';
 
 import { UsersService } from './users.service';
-import { UserDto } from './users.dto';
+import { UserDto, LoginDto } from './users.dto';
+import { UnauthorizedException } from '@nestjs/common';
 
 @Controller('users')
 export class UsersController {
@@ -21,9 +22,24 @@ export class UsersController {
     return this.usersService.createUser(dto);
   }
 
+  @Post('login')
+  async login(@Body() dto: LoginDto) {
+    const user = await this.usersService.validateUser(dto.email, dto.password);
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+    return user;
+  }
+
+
   @Get()
   findAll() {
     return this.usersService.findAll();
+  }
+
+  @Get('sales')
+  findSales() {
+    return this.usersService.findSalesStaff();
   }
 
   @Get(':id')

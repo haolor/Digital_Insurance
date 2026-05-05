@@ -15,7 +15,9 @@ export enum ContractStatus {
   VERIFIED = 'VERIFIED',
   SIGNED = 'SIGNED',
   LOCKED = 'LOCKED',
+  CANCELED = 'CANCELED',
 }
+
 
 @Entity('contracts')
 export class Contract {
@@ -37,8 +39,8 @@ export class Contract {
   content!: string;
 
   @Column({
-    type: 'enum',
-    enum: ContractStatus,
+    type: 'varchar',
+    length: 50,
     default: ContractStatus.PENDING,
   })
   status!: ContractStatus;

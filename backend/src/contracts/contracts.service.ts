@@ -134,10 +134,28 @@ export class ContractsService {
 	}
 
 	async getById(contractId: number): Promise<Contract> {
-		const contract = await this.contractsRepository.findOne({ where: { id: contractId } });
+		const contract = await this.contractsRepository.findOne({
+			where: { id: contractId },
+			relations: ['user', 'order', 'order.product'],
+		});
 		if (!contract) {
 			throw new NotFoundException('Contract not found');
 		}
 		return contract;
+	}
+
+	async findAll(): Promise<Contract[]> {
+		return this.contractsRepository.find({
+			relations: ['user', 'order', 'order.product'],
+			order: { createdAt: 'DESC' },
+		});
+	}
+
+	async findByUser(userId: string): Promise<Contract[]> {
+		return this.contractsRepository.find({
+			where: { user: { id: userId } },
+			relations: ['order', 'order.product'],
+			order: { createdAt: 'DESC' },
+		});
 	}
 }

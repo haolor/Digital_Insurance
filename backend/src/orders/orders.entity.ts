@@ -13,6 +13,7 @@ export enum OrderStatus {
   PENDING = 'PENDING',
   PAID = 'PAID',
   FAILED = 'FAILED',
+  CANCELED = 'CANCELED',
 }
 
 @Entity('orders')
@@ -32,8 +33,8 @@ export class Order {
   amount!: number;
 
   @Column({
-    type: 'enum',
-    enum: OrderStatus,
+    type: 'varchar',
+    length: 50,
     default: OrderStatus.PENDING,
   })
   status!: OrderStatus;

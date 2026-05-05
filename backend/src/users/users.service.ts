@@ -62,6 +62,17 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
+  async validateUser(email: string, pass: string): Promise<User | null> {
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (user) {
+      const isMatch = await import('bcrypt').then(m => m.compare(pass, user.password));
+      if (isMatch) {
+        return user;
+      }
+    }
+    return null;
+  }
+
   async findSalesStaff() {
     return this.usersRepository.find({ 
       where: [

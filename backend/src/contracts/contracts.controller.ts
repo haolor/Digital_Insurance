@@ -36,6 +36,16 @@ export class ContractsController {
 		return this.contractsService.callback(callbackDto);
 	}
 
+	@Get()
+	findAll() {
+		return this.contractsService.findAll();
+	}
+
+	@Get('user/:userId')
+	findByUser(@Param('userId') userId: string) {
+		return this.contractsService.findByUser(userId);
+	}
+
 	@Get(':id')
 	getById(@Param('id', ParseIntPipe) id: number) {
 		return this.contractsService.getById(id);

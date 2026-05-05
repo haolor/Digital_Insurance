@@ -17,6 +17,10 @@ export class CreateLeadDto {
   @IsString()
   @IsOptional()
   source?: string;
+
+  @IsString()
+  @IsOptional()
+  assignedToId?: string;
 }
 
 export class UpdateLeadDto {
