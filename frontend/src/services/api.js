@@ -15,6 +15,14 @@ export const productService = {
   createOrder: (data) => api.post('/orders', data).then(res => res.data),
 };
 
+export const orderService = {
+  getOrders: () => api.get('/orders').then((res) => res.data),
+};
+
+export const paymentService = {
+  callback: (data) => api.post('/payments/callback', data).then((res) => res.data),
+};
+
 export const leadService = {
   getLeads: () => api.get('/leads').then(res => res.data),
   createLead: (data) => api.post('/leads', data).then(res => res.data),
